@@ -19,7 +19,6 @@ class TopicFixtures extends Fixture
 
     public function load(ObjectManager $manager): void
     {
-
         $topicDesserts = new Topic();
         $topicDesserts->setName('Desserts');
         $manager->persist($topicDesserts);

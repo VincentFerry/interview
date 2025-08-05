@@ -2,13 +2,17 @@
 
 namespace App\Controller;
 
+use App\Dto\RecipeCreateDto;
+use App\Dto\RecipeEditDto;
 use App\Entity\Recipe;
-use App\Form\RecipeType;
+use App\Form\RecipeCreateType;
+use App\Form\RecipeEditType;
 use App\Repository\RecipeRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/recipe')]
@@ -23,13 +27,18 @@ final class RecipeController extends AbstractController
     }
 
     #[Route('/new', name: 'app_recipe_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $recipe = new Recipe();
-        $form = $this->createForm(RecipeType::class, $recipe);
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        ObjectMapperInterface $objectMapper,
+    ): Response {
+        $recipeDto = new RecipeCreateDto();
+        $form = $this->createForm(RecipeCreateType::class, $recipeDto);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $recipe = $objectMapper->map($recipeDto);
+
             $entityManager->persist($recipe);
             $entityManager->flush();
 
@@ -37,7 +46,6 @@ final class RecipeController extends AbstractController
         }
 
         return $this->render('recipe/new.html.twig', [
-            'recipe' => $recipe,
             'form' => $form,
         ]);
     }
@@ -51,12 +59,18 @@ final class RecipeController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_recipe_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Recipe $recipe, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(RecipeType::class, $recipe);
+    public function edit(
+        Request $request,
+        Recipe $recipe,
+        EntityManagerInterface $entityManager,
+        ObjectMapperInterface $objectMapper,
+    ): Response {
+        $recipeDto = $objectMapper->map($recipe, RecipeEditDto::class);
+        $form = $this->createForm(RecipeEditType::class, $recipeDto);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $objectMapper->map($recipeDto, $recipe);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_recipe_index', [], Response::HTTP_SEE_OTHER);

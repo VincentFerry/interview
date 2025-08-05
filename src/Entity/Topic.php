@@ -16,7 +16,7 @@ class Topic
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    private string $name;
 
     /**
      * @var Collection<int, Recipe>
@@ -31,7 +31,7 @@ class Topic
 
     public function __toString(): string
     {
-        return $this->name ?? '';
+        return $this->name;
     }
 
     public function getId(): ?int
@@ -39,7 +39,7 @@ class Topic
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }

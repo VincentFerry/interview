@@ -2,14 +2,12 @@
 
 namespace App\Form;
 
-use App\Entity\Recipe;
-use App\Entity\Topic;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Dto\TopicEditDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TopicType extends AbstractType
+class TopicEditType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -21,7 +19,7 @@ class TopicType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Topic::class,
+            'data_class' => TopicEditDto::class,
         ]);
     }
 }
