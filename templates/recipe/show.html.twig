@@ -19,6 +19,16 @@
                 <th>Content</th>
                 <td>{{ recipe.content|nl2br }}</td>
             </tr>
+            <tr>
+                <th>Ingredients</th>
+                <td>
+                    <ul>
+                        {% for ingredient in recipe.ingredients %}
+                            <li>{{ ingredient }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
         </tbody>
     </table>
 

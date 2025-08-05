@@ -28,9 +28,19 @@ class Recipe
     #[ORM\ManyToMany(targetEntity: Topic::class, inversedBy: 'recipes')]
     private Collection $topics;
 
+    /**
+     * @var Collection<int, Ingredient>
+     */
+    #[ORM\ManyToMany(targetEntity: Ingredient::class, inversedBy: 'recipes', cascade: [
+        'persist',
+        'remove',
+    ], orphanRemoval: true)]
+    private Collection $ingredients;
+
     public function __construct()
     {
         $this->topics = new ArrayCollection();
+        $this->ingredients = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -82,6 +92,33 @@ class Recipe
     public function removeTopic(Topic $topic): static
     {
         $this->topics->removeElement($topic);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Ingredient>
+     */
+    public function getIngredients(): Collection
+    {
+        return $this->ingredients;
+    }
+
+    public function addIngredient(Ingredient $ingredient): static
+    {
+        if (!$this->ingredients->contains($ingredient)) {
+            $this->ingredients->add($ingredient);
+            $ingredient->addRecipe($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIngredient(Ingredient $ingredient): static
+    {
+        if ($this->ingredients->removeElement($ingredient)) {
+            $ingredient->removeRecipe($this);
+        }
 
         return $this;
     }

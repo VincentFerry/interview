@@ -2,7 +2,9 @@
 
 namespace App\Dto;
 
-class TopicCreateDto
+class IngredientDto
 {
     public string $name = '';
+
+    public ?string $quantity = null;
 }

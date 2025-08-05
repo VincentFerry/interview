@@ -2,17 +2,20 @@
 
 namespace App\Controller;
 
+use App\Dto\IngredientDto;
 use App\Dto\RecipeCreateDto;
 use App\Dto\RecipeEditDto;
+use App\Entity\Ingredient;
 use App\Entity\Recipe;
 use App\Form\RecipeCreateType;
 use App\Form\RecipeEditType;
 use App\Repository\RecipeRepository;
+use App\Transformer\IngredientTransformer;
+use App\Transformer\RecipeTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/recipe')]
@@ -30,14 +33,24 @@ final class RecipeController extends AbstractController
     public function new(
         Request $request,
         EntityManagerInterface $entityManager,
-        ObjectMapperInterface $objectMapper,
+        RecipeTransformer $recipeTransformer,
+        IngredientTransformer $ingredientTransformer,
     ): Response {
         $recipeDto = new RecipeCreateDto();
         $form = $this->createForm(RecipeCreateType::class, $recipeDto);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $recipe = $objectMapper->map($recipeDto);
+            $recipe = $recipeTransformer->fromDto($recipeDto, Recipe::class);
+
+            // Handle ingredients mapping manually
+            foreach ($recipeDto->ingredients as $ingredientDto) {
+                if (!empty($ingredientDto->name)) {
+                    $ingredient = $ingredientTransformer->fromDto($ingredientDto, Ingredient::class);
+                    $recipe->addIngredient($ingredient);
+                    $entityManager->persist($ingredient);
+                }
+            }
 
             $entityManager->persist($recipe);
             $entityManager->flush();
@@ -63,14 +76,37 @@ final class RecipeController extends AbstractController
         Request $request,
         Recipe $recipe,
         EntityManagerInterface $entityManager,
-        ObjectMapperInterface $objectMapper,
+        RecipeTransformer $recipeTransformer,
+        IngredientTransformer $ingredientTransformer,
     ): Response {
-        $recipeDto = $objectMapper->map($recipe, RecipeEditDto::class);
+        $recipeDto = $recipeTransformer->fromEntity($recipe, RecipeEditDto::class);
+
+        // Map existing ingredients to DTOs
+        foreach ($recipe->getIngredients() as $ingredient) {
+            $ingredientDto = $ingredientTransformer->fromEntity($ingredient, IngredientDto::class);
+            $recipeDto->ingredients->add($ingredientDto);
+        }
+
         $form = $this->createForm(RecipeEditType::class, $recipeDto);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $objectMapper->map($recipeDto, $recipe);
+            $recipeTransformer->fromDto($recipeDto, $recipe);
+
+            // Clear existing ingredients and add new ones
+            foreach ($recipe->getIngredients() as $ingredient) {
+                $recipe->removeIngredient($ingredient);
+            }
+
+            // Add ingredients from DTO
+            foreach ($recipeDto->ingredients as $ingredientDto) {
+                if (!empty($ingredientDto->name)) {
+                    $ingredient = $ingredientTransformer->fromDto($ingredientDto, Ingredient::class);
+                    $recipe->addIngredient($ingredient);
+                    $entityManager->persist($ingredient);
+                }
+            }
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_recipe_index', [], Response::HTTP_SEE_OTHER);

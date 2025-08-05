@@ -8,11 +8,11 @@ use App\Entity\Topic;
 use App\Form\TopicCreateType;
 use App\Form\TopicEditType;
 use App\Repository\TopicRepository;
+use App\Transformer\TopicTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\ObjectMapper\ObjectMapperInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/topic')]
@@ -27,14 +27,14 @@ final class TopicController extends AbstractController
     }
 
     #[Route('/new', name: 'app_topic_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, ObjectMapperInterface $objectMapper): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, TopicTransformer $topicTransformer): Response
     {
         $topicDto = new TopicCreateDto();
         $form = $this->createForm(TopicCreateType::class, $topicDto);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $topic = $objectMapper->map($topicDto, Topic::class);
+            $topic = $topicTransformer->fromDto($topicDto, Topic::class);
 
             $entityManager->persist($topic);
             $entityManager->flush();
@@ -57,7 +57,7 @@ final class TopicController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_topic_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Topic $topic, EntityManagerInterface $entityManager, ObjectMapperInterface $objectMapper): Response
+    public function edit(Request $request, Topic $topic, EntityManagerInterface $entityManager, TopicTransformer $topicTransformer): Response
     {
         $topicDto = new TopicEditDto();
         $topicDto->id = $topic->getId();
@@ -67,7 +67,7 @@ final class TopicController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $objectMapper->map($topicDto, $topic);
+            $topicTransformer->fromDto($topicDto, $topic);
 
             $entityManager->flush();
 

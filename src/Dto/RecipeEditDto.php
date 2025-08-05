@@ -2,13 +2,10 @@
 
 namespace App\Dto;
 
-use App\Entity\Recipe;
 use App\Entity\Topic;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Symfony\Component\ObjectMapper\Attribute\Map;
 
-#[Map(target: Recipe::class)]
 class RecipeEditDto
 {
     public string $name = '';
@@ -19,8 +16,14 @@ class RecipeEditDto
      */
     public Collection $topics;
 
+    /**
+     * @var Collection<int, IngredientDto>
+     */
+    public Collection $ingredients;
+
     public function __construct()
     {
         $this->topics = new ArrayCollection();
+        $this->ingredients = new ArrayCollection();
     }
 }
