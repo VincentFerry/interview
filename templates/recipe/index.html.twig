@@ -10,7 +10,6 @@
             <tr>
                 <th>Id</th>
                 <th>Name</th>
-                <th>Content</th>
                 <th>Topics</th>
                 <th>actions</th>
             </tr>
@@ -20,7 +19,6 @@
             <tr>
                 <td>{{ recipe.id }}</td>
                 <td>{{ recipe.name }}</td>
-                <td>{{ recipe.content }}</td>
                 <td>{{ recipe.topics|join(',') }}</td>
                 <td>
                     <a href="{{ path('app_recipe_show', {'id': recipe.id}) }}">show</a>
