@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!{% endblock %}
+
+{% block body %}
+    <h1>Hello, welcome to my cooking site</h1>
+    <div style="display: flex;gap: 20px;">
+        <a href="{{ path('app_topic_index') }}">See topics</a>
+        <a href="{{ path('app_recipe_index') }}">See recipes</a>
+    </div>
+{% endblock %}
