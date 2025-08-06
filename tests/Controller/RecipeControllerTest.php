@@ -2,13 +2,18 @@
 
 namespace App\Tests\Controller;
 
+use App\Entity\Ingredient;
 use App\Entity\Recipe;
 use App\Entity\Topic;
-use App\Entity\Ingredient;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class RecipeControllerTest extends WebTestCase
 {
     private $client;
@@ -87,7 +92,7 @@ class RecipeControllerTest extends WebTestCase
     {
         $recipe = $this->entityManager->getRepository(Recipe::class)->findOneBy(['name' => 'Test Chocolate Cake']);
 
-        $this->client->request('GET', '/recipe/' . $recipe->getId());
+        $this->client->request('GET', '/recipe/'.$recipe->getId());
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('body', 'Test Chocolate Cake');
@@ -144,7 +149,7 @@ class RecipeControllerTest extends WebTestCase
     {
         $recipe = $this->entityManager->getRepository(Recipe::class)->findOneBy(['name' => 'Test Chocolate Cake']);
 
-        $this->client->request('GET', '/recipe/' . $recipe->getId() . '/edit');
+        $this->client->request('GET', '/recipe/'.$recipe->getId().'/edit');
 
         $this->assertResponseIsSuccessful();
         $this->assertSelectorExists('form[name="recipe_edit"]');
@@ -160,7 +165,7 @@ class RecipeControllerTest extends WebTestCase
     {
         $recipe = $this->entityManager->getRepository(Recipe::class)->findOneBy(['name' => 'Test Chocolate Cake']);
 
-        $crawler = $this->client->request('GET', '/recipe/' . $recipe->getId() . '/edit');
+        $crawler = $this->client->request('GET', '/recipe/'.$recipe->getId().'/edit');
 
         $form = $crawler->filter('button.btn-primary')->form([
             'recipe_edit[name]' => 'Updated Chocolate Cake',
@@ -187,7 +192,7 @@ class RecipeControllerTest extends WebTestCase
         $recipeId = $recipe->getId();
 
         // Get the recipe show page to extract CSRF token
-        $crawler = $this->client->request('GET', '/recipe/' . $recipeId);
+        $crawler = $this->client->request('GET', '/recipe/'.$recipeId);
 
         // Find and submit the delete form
         $form = $crawler->selectButton('Delete')->form();
@@ -218,8 +223,8 @@ class RecipeControllerTest extends WebTestCase
 
         // Should either redirect (if validation passes) or stay on page with errors
         $this->assertTrue(
-            $this->client->getResponse()->isRedirect() ||
-            $this->client->getResponse()->isSuccessful()
+            $this->client->getResponse()->isRedirect()
+            || $this->client->getResponse()->isSuccessful()
         );
     }
 
@@ -240,7 +245,7 @@ class RecipeControllerTest extends WebTestCase
     public function testRecipeDeleteNotFound(): void
     {
         $this->client->request('POST', '/recipe/999999', [
-            '_token' => 'invalid_token'
+            '_token' => 'invalid_token',
         ]);
 
         $this->assertResponseStatusCodeSame(Response::HTTP_NOT_FOUND);

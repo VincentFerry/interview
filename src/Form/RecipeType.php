@@ -7,6 +7,7 @@ use App\Entity\Topic;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -16,7 +17,7 @@ class RecipeType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('content')
+            ->add('content', TextareaType::class)
             ->add('topics', EntityType::class, [
                 'class' => Topic::class,
                 'choice_label' => 'name',
