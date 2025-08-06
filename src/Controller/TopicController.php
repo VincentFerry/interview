@@ -2,11 +2,9 @@
 
 namespace App\Controller;
 
-use App\Dto\TopicCreateDto;
-use App\Dto\TopicEditDto;
+use App\Dto\TopicDto;
 use App\Entity\Topic;
-use App\Form\TopicCreateType;
-use App\Form\TopicEditType;
+use App\Form\TopicType;
 use App\Repository\TopicRepository;
 use App\Transformer\TopicTransformer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -29,8 +27,8 @@ final class TopicController extends AbstractController
     #[Route('/new', name: 'app_topic_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, TopicTransformer $topicTransformer): Response
     {
-        $topicDto = new TopicCreateDto();
-        $form = $this->createForm(TopicCreateType::class, $topicDto);
+        $topicDto = new TopicDto();
+        $form = $this->createForm(TopicType::class, $topicDto);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -59,11 +57,9 @@ final class TopicController extends AbstractController
     #[Route('/{id}/edit', name: 'app_topic_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Topic $topic, EntityManagerInterface $entityManager, TopicTransformer $topicTransformer): Response
     {
-        $topicDto = new TopicEditDto();
-        $topicDto->id = $topic->getId();
-        $topicDto->name = $topic->getName();
+        $topicDto = $topicTransformer->fromEntity($topic, TopicDto::class);
 
-        $form = $this->createForm(TopicEditType::class, $topicDto);
+        $form = $this->createForm(TopicType::class, $topicDto);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -75,7 +71,7 @@ final class TopicController extends AbstractController
         }
 
         return $this->render('topic/edit.html.twig', [
-            'topic' => $topicDto,
+            'topic' => $topic,
             'form' => $form,
         ]);
     }

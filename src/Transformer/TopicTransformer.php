@@ -2,8 +2,7 @@
 
 namespace App\Transformer;
 
-use App\Dto\TopicCreateDto;
-use App\Dto\TopicEditDto;
+use App\Dto\TopicDto;
 use App\Entity\Topic;
 
 class TopicTransformer
@@ -11,7 +10,7 @@ class TopicTransformer
     public function fromEntity(Topic $topic, string $dtoClass): object
     {
         return match ($dtoClass) {
-            TopicEditDto::class => $this->topicToEditDto($topic),
+            TopicDto::class => $this->topicToDto($topic),
             default => throw new \InvalidArgumentException('Unsupported DTO class: '.$dtoClass),
         };
     }
@@ -21,36 +20,32 @@ class TopicTransformer
         if (is_string($entityClassOrInstance)) {
             // Create new entity
             return match (true) {
-                $dto instanceof TopicCreateDto && Topic::class === $entityClassOrInstance => $this->createDtoToTopic($dto),
+                $dto instanceof TopicDto && Topic::class === $entityClassOrInstance => $this->dtoToTopic($dto),
                 default => throw new \InvalidArgumentException('Unsupported transformation from '.get_class($dto).' to '.$entityClassOrInstance),
             };
         } else {
             // Update existing entity
             return match (true) {
-                $dto instanceof TopicEditDto && $entityClassOrInstance instanceof Topic => $this->editDtoToTopic($dto, $entityClassOrInstance),
+                $dto instanceof TopicDto && $entityClassOrInstance instanceof Topic => $this->dtoToTopic($dto, $entityClassOrInstance),
                 default => throw new \InvalidArgumentException('Unsupported transformation from '.get_class($dto).' to '.get_class($entityClassOrInstance)),
             };
         }
     }
 
-    private function topicToEditDto(Topic $topic): TopicEditDto
+    private function topicToDto(Topic $topic): TopicDto
     {
-        $dto = new TopicEditDto();
+        $dto = new TopicDto();
         $dto->name = $topic->getName();
 
         return $dto;
     }
 
-    private function createDtoToTopic(TopicCreateDto $dto): Topic
+    private function dtoToTopic(TopicDto $dto, ?Topic $topic = null): Topic
     {
-        $topic = new Topic();
-        $topic->setName($dto->name);
+        if (null === $topic) {
+            $topic = new Topic();
+        }
 
-        return $topic;
-    }
-
-    private function editDtoToTopic(TopicEditDto $dto, Topic $topic): Topic
-    {
         $topic->setName($dto->name);
 
         return $topic;

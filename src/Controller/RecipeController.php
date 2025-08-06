@@ -3,12 +3,10 @@
 namespace App\Controller;
 
 use App\Dto\IngredientDto;
-use App\Dto\RecipeCreateDto;
-use App\Dto\RecipeEditDto;
+use App\Dto\RecipeDto;
 use App\Entity\Ingredient;
 use App\Entity\Recipe;
-use App\Form\RecipeCreateType;
-use App\Form\RecipeEditType;
+use App\Form\RecipeType;
 use App\Repository\RecipeRepository;
 use App\Transformer\IngredientTransformer;
 use App\Transformer\RecipeTransformer;
@@ -36,8 +34,8 @@ final class RecipeController extends AbstractController
         RecipeTransformer $recipeTransformer,
         IngredientTransformer $ingredientTransformer,
     ): Response {
-        $recipeDto = new RecipeCreateDto();
-        $form = $this->createForm(RecipeCreateType::class, $recipeDto);
+        $recipeDto = new RecipeDto();
+        $form = $this->createForm(RecipeType::class, $recipeDto);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -79,7 +77,7 @@ final class RecipeController extends AbstractController
         RecipeTransformer $recipeTransformer,
         IngredientTransformer $ingredientTransformer,
     ): Response {
-        $recipeDto = $recipeTransformer->fromEntity($recipe, RecipeEditDto::class);
+        $recipeDto = $recipeTransformer->fromEntity($recipe, RecipeDto::class);
 
         // Map existing ingredients to DTOs
         foreach ($recipe->getIngredients() as $ingredient) {
@@ -87,7 +85,7 @@ final class RecipeController extends AbstractController
             $recipeDto->ingredients->add($ingredientDto);
         }
 
-        $form = $this->createForm(RecipeEditType::class, $recipeDto);
+        $form = $this->createForm(RecipeType::class, $recipeDto);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

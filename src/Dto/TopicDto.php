@@ -2,7 +2,7 @@
 
 namespace App\Dto;
 
-class TopicCreateDto
+class TopicDto
 {
     public string $name = '';
 }

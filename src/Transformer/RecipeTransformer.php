@@ -2,8 +2,7 @@
 
 namespace App\Transformer;
 
-use App\Dto\RecipeCreateDto;
-use App\Dto\RecipeEditDto;
+use App\Dto\RecipeDto;
 use App\Entity\Recipe;
 
 class RecipeTransformer
@@ -11,7 +10,7 @@ class RecipeTransformer
     public function fromEntity(Recipe $recipe, string $dtoClass): object
     {
         return match ($dtoClass) {
-            RecipeEditDto::class => $this->recipeToEditDto($recipe),
+            RecipeDto::class => $this->recipeToDto($recipe),
             default => throw new \InvalidArgumentException('Unsupported DTO class: '.$dtoClass),
         };
     }
@@ -21,21 +20,21 @@ class RecipeTransformer
         if (is_string($entityClassOrInstance)) {
             // Create new entity
             return match (true) {
-                $dto instanceof RecipeCreateDto && Recipe::class === $entityClassOrInstance => $this->createDtoToRecipe($dto),
+                $dto instanceof RecipeDto && Recipe::class === $entityClassOrInstance => $this->dtoToRecipe($dto),
                 default => throw new \InvalidArgumentException('Unsupported transformation from '.get_class($dto).' to '.$entityClassOrInstance),
             };
         } else {
             // Update existing entity
             return match (true) {
-                $dto instanceof RecipeEditDto && $entityClassOrInstance instanceof Recipe => $this->editDtoToRecipe($dto, $entityClassOrInstance),
+                $dto instanceof RecipeDto && $entityClassOrInstance instanceof Recipe => $this->dtoToRecipe($dto, $entityClassOrInstance),
                 default => throw new \InvalidArgumentException('Unsupported transformation from '.get_class($dto).' to '.get_class($entityClassOrInstance)),
             };
         }
     }
 
-    private function recipeToEditDto(Recipe $recipe): RecipeEditDto
+    private function recipeToDto(Recipe $recipe): RecipeDto
     {
-        $dto = new RecipeEditDto();
+        $dto = new RecipeDto();
         $dto->name = $recipe->getName();
         $dto->content = $recipe->getContent();
 
@@ -46,21 +45,12 @@ class RecipeTransformer
         return $dto;
     }
 
-    private function createDtoToRecipe(RecipeCreateDto $dto): Recipe
+    private function dtoToRecipe(RecipeDto $dto, ?Recipe $recipe = null): Recipe
     {
-        $recipe = new Recipe();
-        $recipe->setName($dto->name);
-        $recipe->setContent($dto->content);
-
-        foreach ($dto->topics as $topic) {
-            $recipe->addTopic($topic);
+        if (null === $recipe) {
+            $recipe = new Recipe();
         }
 
-        return $recipe;
-    }
-
-    private function editDtoToRecipe(RecipeEditDto $dto, Recipe $recipe): Recipe
-    {
         $recipe->setName($dto->name);
         $recipe->setContent($dto->content);
 
