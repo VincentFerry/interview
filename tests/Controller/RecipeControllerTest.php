@@ -106,10 +106,10 @@ class RecipeControllerTest extends WebTestCase
         $this->client->request('GET', '/recipe/new');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('form[name="recipe_create"]');
-        $this->assertSelectorExists('input[name="recipe_create[name]"]');
-        $this->assertSelectorExists('input[name="recipe_create[content]"]');
-        $this->assertSelectorExists('input[name="recipe_create[topics][]"]');
+        $this->assertSelectorExists('form[name="recipe"]');
+        $this->assertSelectorExists('input[name="recipe[name]"]');
+        $this->assertSelectorExists('textarea[name="recipe[content]"]');
+        $this->assertSelectorExists('input[name="recipe[topics][]"]');
         $this->assertSelectorTextContains('button.btn-primary', 'Save');
     }
 
@@ -121,12 +121,12 @@ class RecipeControllerTest extends WebTestCase
         $crawler = $this->client->request('GET', '/recipe/new');
 
         $form = $crawler->filter('button.btn-primary')->form([
-            'recipe_create[name]' => 'New Test Recipe',
-            'recipe_create[content]' => 'New test recipe instructions',
+            'recipe[name]' => 'New Test Recipe',
+            'recipe[content]' => 'New test recipe instructions',
         ]);
 
         // Select the dessert topic checkbox
-        $form['recipe_create[topics][0]']->tick();
+        $form['recipe[topics][0]']->tick();
 
         // Add ingredients using the collection prototype structure
         // First, we need to add ingredients dynamically since the form starts empty
@@ -152,13 +152,13 @@ class RecipeControllerTest extends WebTestCase
         $this->client->request('GET', '/recipe/'.$recipe->getId().'/edit');
 
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorExists('form[name="recipe_edit"]');
-        $this->assertSelectorExists('input[name="recipe_edit[name]"]');
-        $this->assertSelectorExists('input[name="recipe_edit[content]"]');
-        $this->assertSelectorExists('input[name="recipe_edit[topics][]"]');
+        $this->assertSelectorExists('form[name="recipe"]');
+        $this->assertSelectorExists('input[name="recipe[name]"]');
+        $this->assertSelectorExists('textarea[name="recipe[content]"]');
+        $this->assertSelectorExists('input[name="recipe[topics][]"]');
 
         // Check that form is pre-filled with existing data
-        $this->assertSelectorExists('input[name="recipe_edit[name]"][value="Test Chocolate Cake"]');
+        $this->assertSelectorExists('input[name="recipe[name]"][value="Test Chocolate Cake"]');
     }
 
     public function testRecipeEdit(): void
@@ -168,8 +168,8 @@ class RecipeControllerTest extends WebTestCase
         $crawler = $this->client->request('GET', '/recipe/'.$recipe->getId().'/edit');
 
         $form = $crawler->filter('button.btn-primary')->form([
-            'recipe_edit[name]' => 'Updated Chocolate Cake',
-            'recipe_edit[content]' => 'Updated instructions for chocolate cake',
+            'recipe[name]' => 'Updated Chocolate Cake',
+            'recipe[content]' => 'Updated instructions for chocolate cake',
         ]);
 
         $this->client->submit($form);
@@ -215,8 +215,8 @@ class RecipeControllerTest extends WebTestCase
 
         // Test with very long name that might exceed database limits
         $form = $crawler->filter('button.btn-primary')->form([
-            'recipe_create[name]' => str_repeat('A', 300), // Very long name
-            'recipe_create[content]' => 'Valid content',
+            'recipe[name]' => str_repeat('A', 300), // Very long name
+            'recipe[content]' => 'Valid content',
         ]);
 
         $this->client->submit($form);

@@ -25,3 +25,24 @@ function fixtures(): void
     io()->title('Loading database fixtures...');
     run('php bin/console doctrine:fixtures:load --no-interaction');
 }
+
+#[AsTask(description: 'Install project')]
+function install(): void
+{
+    io()->title('Installing project...');
+    run('composer install');
+    run('php bin/console doctrine:database:create');
+    run('php bin/console doctrine:migrations:migrate -n');
+    run('php bin/console doctrine:fixtures:load -n');
+}
+
+#[AsTask(description: 'Run tests')]
+function test(): void
+{
+    io()->title('Running tests...');
+    run('php bin/console doctrine:database:drop --force -e test');
+    run('php bin/console doctrine:database:create -e test');
+    run('php bin/console doctrine:migrations:migrate -n -e test');
+    run('php bin/console doctrine:fixtures:load -n -e test');
+    run('vendor/bin/phpunit');
+}
