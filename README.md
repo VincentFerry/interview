@@ -27,3 +27,8 @@ bin/console doctrine:migrations:migrate -ne test
 bin/console doctrine:fixtures:load -ne test
 bin/phpunit
 ```
+
+## Todo
+
+- [ ] Add a "favorite" button on the "show" page.
+- [ ] Display the calories of each recipe on the "show" page, using the nutritionix api (natural language processing endpoint).
