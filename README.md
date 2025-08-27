@@ -32,17 +32,19 @@ bin/phpunit
 
 ## Scripts
 
-Install castor locally or globally: https://castor.jolicode.com/installation/
-Now, you can run these commands:
+Install [castor](https://castor.jolicode.com/installation/) locally or globally. Now, you should be able to run these commands:
 
 ```shell
 castor phpstan
 castor cs
 castor fixtures
 ```
-
+Otherwise, use
+```shell
+php vendor/bin/phpstan
+php vendor/bin/php-cs-fixer fix
+php vendor/bin/doctrine orm:fixtures:load -n
+```
 ## Todo
 
-- [ ] Add a "favorite" button on the "show" page.
 - [ ] Display the calories of each recipe on the "show" page, using the [nutritionix api natural language processing](https://www.nutritionix.com/natural-demo).
-- [ ] Fix the phpstan errors
