@@ -22,6 +22,9 @@ class Recipe
     #[ORM\Column(type: Types::TEXT)]
     private string $content;
 
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
+    public ?float $calories = null;
+
     /**
      * @var Collection<int, Topic>
      */
@@ -68,6 +71,18 @@ class Recipe
     public function setContent(string $content): static
     {
         $this->content = $content;
+
+        return $this;
+    }
+
+    public function getCalories(): ?float
+    {
+        return $this->calories;
+    }
+
+    public function setCalories(?float $calories): static
+    {
+        $this->calories = $calories;
 
         return $this;
     }

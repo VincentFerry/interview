@@ -3,6 +3,14 @@
 {% block title %}Recipe{% endblock %}
 
 {% block body %}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="alert alert-{{ label }}">
+                {{ message|nl2br }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+
     <h1>Recipe</h1>
 
     <table class="table">
@@ -29,6 +37,10 @@
                     </ul>
                 </td>
             </tr>
+            <tr>
+                <th>Calories</th>
+                <td> {{recipe.calories}} </td>
+            </tr>
         </tbody>
     </table>
 
@@ -37,4 +49,17 @@
     <a href="{{ path('app_recipe_edit', {'id': recipe.id}) }}">edit</a>
 
     {{ include('recipe/_delete_form.html.twig') }}
+{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c2c7;
+            border-radius: 8px;
+            background-color: #f8d7da;
+            color: #842029;
+        }
+    </style>
 {% endblock %}

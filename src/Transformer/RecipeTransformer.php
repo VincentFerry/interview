@@ -37,6 +37,7 @@ class RecipeTransformer
         $dto = new RecipeDto();
         $dto->name = $recipe->getName();
         $dto->content = $recipe->getContent();
+        $dto->calories = null !== $recipe->getCalories() ? $recipe->getCalories() : null;
 
         foreach ($recipe->getTopics() as $topic) {
             $dto->topics->add($topic);
@@ -53,6 +54,7 @@ class RecipeTransformer
 
         $recipe->setName($dto->name);
         $recipe->setContent($dto->content);
+        $recipe->setCalories($dto->calories);
 
         // Clear existing topics and add new ones
         foreach ($recipe->getTopics() as $topic) {

@@ -8,6 +8,7 @@ use App\Entity\Ingredient;
 use App\Entity\Recipe;
 use App\Form\RecipeType;
 use App\Repository\RecipeRepository;
+use App\Service\NutritionixService;
 use App\Transformer\IngredientTransformer;
 use App\Transformer\RecipeTransformer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -62,8 +63,13 @@ final class RecipeController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_recipe_show', methods: ['GET'])]
-    public function show(Recipe $recipe): Response
+    public function show(Recipe $recipe, NutritionixService $nutritionService): Response
     {
+        $error = $nutritionService->setRecipeCalories($recipe);
+        if (null !== $error) {
+            $this->addFlash('error', "An error occurred while calculating ingredient calories:\n".$error);
+        }
+
         return $this->render('recipe/show.html.twig', [
             'recipe' => $recipe,
         ]);
@@ -76,6 +82,7 @@ final class RecipeController extends AbstractController
         EntityManagerInterface $entityManager,
         RecipeTransformer $recipeTransformer,
         IngredientTransformer $ingredientTransformer,
+        NutritionixService $nutritionService,
     ): Response {
         $recipeDto = $recipeTransformer->fromEntity($recipe, RecipeDto::class);
 
@@ -105,6 +112,7 @@ final class RecipeController extends AbstractController
                 }
             }
 
+            $nutritionService->invalidateRecipeCalories($recipe);
             $entityManager->flush();
 
             return $this->redirectToRoute('app_recipe_index', [], Response::HTTP_SEE_OTHER);

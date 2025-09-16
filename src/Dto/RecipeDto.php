@@ -12,6 +12,8 @@ class RecipeDto
 
     public string $content = '';
 
+    public ?float $calories = null;
+
     /**
      * @var Collection<int, Topic>
      */
